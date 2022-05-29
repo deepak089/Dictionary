@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+// import {ThemeProvider} from '@mui/material';
+// import {CssBaseline} from '@mui/material';
+import theme from './Theme';
+import { useState,useEffect } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
-function App() {
+import Home from './component/Home/Home';
+import Definition from './component/definition/Definition';
+import Bookmark from './component/Bookmark/Bookmark';
+
+const  App = ()=> {
+  const [bookmarks, setbookmarks] = useState(JSON.parse(localStorage.getItem('bookmarks'))|| {});
+
+  // calling useffect as we need to handle addboomark and removebookmark feature..
+
+  useEffect(()=>{
+  localStorage.setItem('bookmarks',JSON.stringify(bookmarks));
+  },[bookmarks]);
+
+  const addBookmarks = (word,definition)=>{
+    setbookmarks((oldbookmarks)=> ({
+      ...oldbookmarks,[word]:definition
+    }))
+  }
+
+
+  const removeBookmark=(word) => setbookmarks((oldbookmarks)=>{
+  // create copy of old bookmark
+  const temp={...oldbookmarks};
+  delete temp[word];
+  return temp;
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+    <Routes>
+        <Route exact path="/" element={<Home />} />
+       <Route path="/search/:word" element={<Definition  bookmarks={bookmarks}   addBookmarks={addBookmarks}  removeBookmark={removeBookmark} />} />  
+        <Route path="/bookmarks" element={<Bookmark  bookmarks={bookmarks}  />} />
+    </Routes>
+  </BrowserRouter>
   );
 }
 
